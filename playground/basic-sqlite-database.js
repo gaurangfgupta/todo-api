@@ -1,22 +1,22 @@
-var Sequelize = require('sequelize'),
-    sequelize = new Sequelize(undefined, undefined, undefined, {
-        'dialect': 'sqlite',
-        'storage': 'basic-sqlite-database.sqlite'
-    }),
-    Todo = sequelize.define('todo', {
-        description: {
-            type: Sequelize.STRING,
-            allowNull: false,
-            validate: {
-                len: [1, 250]
-            }
-        },
-        completed: {
-            type: Sequelize.BOOLEAN,
-            allowNull: false,
-            defaultValue: false
+var Sequelize = require('sequelize');
+var sequelize = new Sequelize(undefined, undefined, undefined, {
+    'dialect': 'sqlite',
+    'storage': 'basic-sqlite-database.sqlite'
+});
+var Todo = sequelize.define('todo', {
+    description: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        validate: {
+            len: [1, 250]
         }
-    })
+    },
+    completed: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    }
+});
 sequelize.sync(
     // force: true
 )
