@@ -61,14 +61,18 @@ app.get('/todo/:id', middleware.requireAuthentication, function (req, res) {
 app.post('/todos', middleware.requireAuthentication, function (req, res) {
     requiredProperties = ['description', 'completed'];
     var body = _.pick(req.body, requiredProperties);
-    //Call create on db.todo
-    //  Respond with and todo
-    //Else Respond error and 404 status
 
     db.todo.create(body)
         .then(
         function (todo) {
-            res.json(todo.toJSON());
+
+            req.user.addTodo(todo)
+                .then(function () {
+                    return todo.reload();
+                })
+                .then(function (todo) {
+                    res.json(todo.toJSON());
+                });
         },
         function (error) {
             res.status(400).json(error);

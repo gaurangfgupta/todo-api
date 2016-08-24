@@ -17,47 +17,46 @@ var Todo = sequelize.define('todo', {
         defaultValue: false
     }
 });
+
+var User = sequelize.define('user', {
+    email: {
+        type: Sequelize.STRING
+    }
+});
+
+Todo.belongsTo(User);
+User.hasMany(Todo);
+
 sequelize.sync(
-    // force: true
-)
+    // { force: true }
+    )
     .then(function () {
         console.log('Everything is synced');
-        Todo.findById(2)
-            .then(function (todo) {
-                if (todo) {
-                    console.log(todo.toJSON());
-                } else {
-                    console.log('xxxxxxxxxxxxxxx    Todo not found    xxxxxxxxxxxxxxx');
+        User.findById(1)
+        .then(function (user) {
+            user.getTodos({
+                where: {
+                    completed: true
                 }
+            })
+            .then(function (todos) {
+                todos.forEach(function(todo) {
+                    console.log(todo.toJSON());
+                });
             });
-        // Todo.create({
-        //     description: 'Take out trash',
+        });
+        // User.create({
+        //     email: 'gaurangfgupta@gmail.com'
         // })
-        //     .then(function (todo) {
-        //         return Todo.create({
-        //             description: 'Clean office',
-        //         });
-        //     })
         //     .then(function () {
-        //         return Todo.findAll({
-        //             where: {
-        //                 description: {
-        //                     $like: '%Office%'
-        //                 }
-        //             }
+        //         return Todo.create({
+        //             description: 'Clean yard',
         //         });
         //     })
-        //     .then(function (todos) {
-        //         if (todos) {
-        //             todos.forEach(function (todo) {
-        //                 console.log(todo.toJSON());
+        //     .then(function (todo) {
+        //         User.findById(1)
+        //             .then(function (user) {
+        //                 user.addTodo(todo);
         //             });
-
-        //         } else {
-        //             console.log('No todo found');
-        //         }
-        //     })
-        //     .catch(function (error) {
-        //         console.log(error);
         //     });
     });
