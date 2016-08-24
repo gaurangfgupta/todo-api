@@ -1,6 +1,7 @@
 var bcryptjs = require('bcryptjs');
 var _ = require('underscore');
-
+var cryptojs = require('crypto-js');
+var jwt = require('jsonwebtoken');
 module.exports = function (sequelize, DataTypes) {
     var user = sequelize.define(
         'user',
@@ -19,7 +20,7 @@ module.exports = function (sequelize, DataTypes) {
                 validate: {
                     len: [5, 100]
                 },
-                set: function (value){
+                set: function (value) {
                     var salt = bcryptjs.genSaltSync(10);
                     var hashedPassword = bcryptjs.hashSync(value, salt);
                     this.setDataValue('password', value);
@@ -46,11 +47,31 @@ module.exports = function (sequelize, DataTypes) {
                 toPublicJSON: function () {
                     var json = this.toJSON();
                     return _.pick(json, 'id', 'email', 'createdAt', 'updatedAt');
+                },
+                generateToken: function (type) {
+                    if (!_.isString(type)) {
+                        return undefined;
+                    }
+                    try {
+                        var stringData = JSON.stringify({
+                            id: this.get('id'),
+                            type: type
+                        });
+                        var encryptedData = cryptojs.AES.encrypt(stringData, 'abc123').toString();
+                        var token = jwt.sign({
+                            token: encryptedData,
+                        }, 'qwerty098'
+                        );
+                        return token;
+                    } catch (error) {
+                        console.error(error);
+                        return undefined;
+                    }
                 }
             },
             classMethods: {
                 authenticate: function (body) {
-                    return new Promise (function (resolve,reject) {
+                    return new Promise(function (resolve, reject) {
                         if (typeof body.email !== 'string' || typeof body.password !== 'string') {
                             return reject();
                         }
