@@ -7,6 +7,7 @@ var app = express();
 var PORT = process.env.PORT || 3000;
 var todos = [];
 var todoNextId = 1;
+var middleware = require('./middleware.js')(db);
 
 app.use(bodyParser.json());
 
@@ -15,7 +16,7 @@ app.get('/', function (req, res) {
 });
 
 // GET /todos?complete=true?q=work
-app.get('/todos', function (req, res) {
+app.get('/todos', middleware.requireAuthentication, function (req, res) {
     var query = req.query;
     var where = {};
     if (query.hasOwnProperty('completed') && query.completed === 'true') {
@@ -42,7 +43,7 @@ app.get('/todos', function (req, res) {
         });
 });
 
-app.get('/todo/:id', function (req, res) {
+app.get('/todo/:id', middleware.requireAuthentication, function (req, res) {
     var todoId = parseInt(req.params.id, 10);
     db.todo.findById(todoId)
         .then(function (todo) {
@@ -57,7 +58,7 @@ app.get('/todo/:id', function (req, res) {
         });
 });
 
-app.post('/todos', function (req, res) {
+app.post('/todos', middleware.requireAuthentication, function (req, res) {
     requiredProperties = ['description', 'completed'];
     var body = _.pick(req.body, requiredProperties);
     //Call create on db.todo
@@ -74,7 +75,7 @@ app.post('/todos', function (req, res) {
         });
 });
 
-app.delete('/todos/:id', function (req, res) {
+app.delete('/todos/:id', middleware.requireAuthentication, function (req, res) {
     var todoId = parseInt(req.params.id, 10);
     db.todo.destroy({
         where: {
@@ -92,7 +93,7 @@ app.delete('/todos/:id', function (req, res) {
         });
 });
 
-app.put('/todos/:id', function (req, res) {
+app.put('/todos/:id', middleware.requireAuthentication, function (req, res) {
     var todoId = parseInt(req.params.id, 10);
     requiredProperties = ['description', 'completed'];
     var body = _.pick(req.body, requiredProperties);
